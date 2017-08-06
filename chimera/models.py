@@ -1,5 +1,8 @@
 from dateutil import parser, tz
 from sqlalchemy.types import DateTime, Date, Enum
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 
 class Collection():
@@ -13,7 +16,7 @@ class Collection():
         return [m.dump() for m in self.models]
 
 
-class Base(object):
+class Base(db.Model):
     def __init__(self, data={}, currentUser=None):
         self.parse(data, currentUser, 'save')
 
