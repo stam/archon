@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 import os
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 def read(fname):
@@ -10,7 +10,8 @@ def read(fname):
 setup(
     name='chimera',
     version='0.0.1',
-    packages=['chimera'],
+    packages=find_packages(),
+    include_package_data=True,
     license='MIT',
     description='A framework for websocket APIs.',
     author='Jasper Stam',
@@ -19,6 +20,7 @@ setup(
     classifiers=[],
     install_requires=[
         'gevent >= 1.1.2',
+        'greenlet >= 0.4.12',
         'Flask >= 0.12.0',
         'Flask-Script >= 2.0.5',
         'Flask-Sockets >= 0.2.1',

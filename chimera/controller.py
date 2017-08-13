@@ -8,7 +8,7 @@ import jwt as _jwt
 import requests as _requests
 import copy as _copy
 import base64 as _base64
-from src.models import *
+from .models import User
 
 
 class BaseController():
