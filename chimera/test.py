@@ -8,6 +8,10 @@ import requests
 
 
 class TestCase(Case):
+    def setUp(self):
+        self.client.app.app_context().push()
+        self.client.db.create_all()
+
     # Reset the Hub
     # Otherwise the hub still has the socket of the previous test
     def tearDown(self):
@@ -83,8 +87,9 @@ def mock_api(url, **kwargs):
 
 
 class Client:
-    def __init__(self, app):
+    def __init__(self, app, db):
         self.app = app
+        self.db = db
         self.app.testing = True
         self.flask_test_client = self.app.test_client()
         self._mock_outgoing_requests()
@@ -108,5 +113,5 @@ class Client:
 
     def _mock_outgoing_requests(self):
         self._api_mock = mock.MagicMock(side_effect=mock_api)
-        self._outgoing_requests = mock.patch.object(requests, 'get', self._api_mock)
+        self._outgoing_requests = mock.patch.object(requests, 'post', self._api_mock)
         self._outgoing_requests.start()

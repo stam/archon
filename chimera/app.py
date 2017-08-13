@@ -18,11 +18,11 @@ def create_app(settings=None):
     db.init_app(app)
 
     from chimera.hub import Hub
-    hub = Hub()
+    app.hub = Hub()
 
     @sockets.route('/ws/')
     def open_socket(ws):
-        socket = hub.add(ws)
+        socket = app.hub.add(ws)
         while not socket.ws.closed:
             message = socket.ws.receive()
             if message:
@@ -31,4 +31,4 @@ def create_app(settings=None):
                 except Exception as e:
                     logging.error(e, exc_info=True)
 
-    return app
+    return app, db
