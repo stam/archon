@@ -101,7 +101,7 @@ class User(Base, db.Model):
     avatar_url = db.Column(db.String(300))
 
     def create_session(self):
-        secret = os.environ.get('CY_SECRET_KEY')
+        secret = os.environ.get('CY_SECRET_KEY', '')
         payload = self.dump()
         payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(weeks=8)
         return jwt.encode(payload, secret, algorithm='HS256').decode('utf-8')

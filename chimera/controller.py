@@ -67,7 +67,7 @@ class BaseController():
             return False
 
         try:
-            userData = _jwt.decode(self.body['authorization'], _os.environ.get('CY_SECRET_KEY'), algorithms=['HS256'])
+            userData = _jwt.decode(self.body['authorization'], _os.environ.get('CY_SECRET_KEY', ''), algorithms=['HS256'])
             self.currentUser = User.query.get(userData['id'])
         except _jwt.InvalidTokenError:
             return False

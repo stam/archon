@@ -97,7 +97,12 @@ class Client:
     def __del__(self):
         self._outgoing_requests.stop()
 
-    def open_connection(self, ws, url='/ws/'):
+    def open_connection(self, ws, url='/ws/', app=None):
+        if app:
+            # So for some reason, Flask loses its application context
+            # when switching between greenlets?
+            app.app_context().push()
+            
         # We need to invoke a websocket route with the given url
         # No idea why we can't match on just the url_map
         # So we bind it to an empty context.

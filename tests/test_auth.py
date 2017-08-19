@@ -4,6 +4,8 @@ import base64
 from .testapp.app import app, db
 from chimera.test import TestCase, Client, MockResponse, MockWebSocket
 from chimera.models import User
+from greenlet import greenlet
+
 
 subscribe_company = {
     'target': 'company',
@@ -16,7 +18,6 @@ authenticate = {
         'code': 'foo',
     },
 }
-
 
 def create_fake_google_id_token():
     u_data = {
@@ -60,13 +61,42 @@ class TestAuth(TestCase):
         self.client.set_mock_api(mock_oauth)
         ws = MockWebSocket()
         ws.mock_incoming_message(json.dumps(authenticate))
-        self.client.open_connection(ws)
+
+        # app_context = self.app.context
+        g = greenlet(self.client.open_connection)
+        g.switch(ws, app=self.client.app)
+        # self.client.open_connection(ws)
 
         self.assertEqual(1, requests.post.call_count)
-        # Assert client_id, client_secret, redirect_uri, code, grant_type in request
+
+        call_params = requests.post.call_args_list[0][1]['params']
+        self.assertTrue('client_id' in call_params)
+        self.assertTrue('client_secret' in call_params)
+        self.assertTrue('redirect_uri' in call_params)
+        self.assertTrue(call_params['code'], authenticate['data']['code'])
+        self.assertTrue(call_params['grant_type'], 'authorization_code')
 
         users = self.client.db.session.query(User).all()
         self.assertEqual(1, len(users))
         self.assertEqual('henk@devries.nl', users[0].email)
 
-        # TODO Test session token in response and it workss
+        self.assertEqual(1, len(ws.outgoing_messages))
+        m = json.loads(ws.outgoing_messages[0])
+        self.assertEqual('authenticate', m['type'])
+        self.assertEqual('success', m['code'])
+        self.assertTrue('authorization' in m)
+
+        # Now check that the response auth code actually works
+        req_bootstrap = {
+            'type': 'bootstrap',
+            'authorization': m['authorization'],
+        }
+
+        ws.mock_incoming_message(json.dumps(req_bootstrap))
+        g.switch()
+
+        self.assertEqual(2, len(ws.outgoing_messages))
+        m = json.loads(ws.outgoing_messages[1])
+        self.assertEqual('bootstrap', m['type'])
+        self.assertEqual('success', m['code'])
+        self.assertEqual('Henk de Vries', m['data']['username'])
