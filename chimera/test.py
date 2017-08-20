@@ -102,7 +102,7 @@ class Client:
             # So for some reason, Flask loses its application context
             # when switching between greenlets?
             app.app_context().push()
-            
+
         # We need to invoke a websocket route with the given url
         # No idea why we can't match on just the url_map
         # So we bind it to an empty context.

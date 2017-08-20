@@ -19,6 +19,7 @@ authenticate = {
     },
 }
 
+
 def create_fake_google_id_token():
     u_data = {
         'name': 'Henk de Vries',
@@ -34,6 +35,7 @@ def create_fake_google_id_token():
 
 
 class TestAuth(TestCase):
+
     def setUp(self):
         self.client = Client(app, db)
         super().setUp()
