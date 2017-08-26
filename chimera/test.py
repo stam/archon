@@ -1,10 +1,19 @@
 from collections import deque
+from .models import User
 from unittest import mock, TestCase as Case
 from geventwebsocket.exceptions import WebSocketError
 from geventwebsocket.websocket import MSG_ALREADY_CLOSED
 from .hub import Hub
 from greenlet import greenlet
 import requests
+import json
+
+
+user_henk = {
+    'name': 'Henk de Vries',
+    'email': 'henk@devries.nl',
+    'picture': 'bla',
+}
 
 
 class TestCase(Case):
@@ -19,9 +28,24 @@ class TestCase(Case):
             self.client.app.hub = Hub()
 
 
+class LoggedInTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        # create and save a user
+        u = User(user_henk)
+        self.client.db.session.add(u)
+        self.client.db.session.commit()
+
+        # create a jwt token for that user
+        token = u.create_session()
+        self.client.auth_token = token
+
+
 class MockWebSocket:
     closed = False
     connection = None
+    auth_token = None
 
     def __init__(self):
         self.pending_actions = deque()
@@ -69,8 +93,11 @@ class MockWebSocket:
                 next_action()
             else:
                 result = next_action
+                # Add the auth_token for mocking loggeded in users
+                if self.auth_token:
+                    result['authorization'] = self.auth_token
 
-        return result
+        return json.dumps(result)
 
 
 class MockResponse:
@@ -87,6 +114,8 @@ def mock_api(url, **kwargs):
 
 
 class Client:
+    auth_token = None
+
     def __init__(self, app, db):
         self.app = app
         self.db = db
@@ -102,6 +131,9 @@ class Client:
             # So for some reason, Flask loses its application context
             # when switching between greenlets?
             app.app_context().push()
+
+        if self.auth_token:
+            ws.auth_token = self.auth_token
 
         # We need to invoke a websocket route with the given url
         # No idea why we can't match on just the url_map

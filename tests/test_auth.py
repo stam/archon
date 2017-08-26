@@ -42,7 +42,7 @@ class TestAuth(TestCase):
 
     def test_unauth_request(self):
         ws = MockWebSocket()
-        ws.mock_incoming_message(json.dumps(subscribe_company))
+        ws.mock_incoming_message(subscribe_company)
         self.client.open_connection(ws)
 
         self.assertEqual(1, len(ws.outgoing_messages))
@@ -62,7 +62,7 @@ class TestAuth(TestCase):
 
         self.client.set_mock_api(mock_oauth)
         ws = MockWebSocket()
-        ws.mock_incoming_message(json.dumps(authenticate))
+        ws.mock_incoming_message(authenticate)
 
         # app_context = self.app.context
         g = greenlet(self.client.open_connection)
@@ -94,7 +94,7 @@ class TestAuth(TestCase):
             'authorization': m['authorization'],
         }
 
-        ws.mock_incoming_message(json.dumps(req_bootstrap))
+        ws.mock_incoming_message(req_bootstrap)
         g.switch()
 
         self.assertEqual(2, len(ws.outgoing_messages))
