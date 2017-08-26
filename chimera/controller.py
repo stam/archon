@@ -8,15 +8,22 @@ import jwt as _jwt
 import requests as _requests
 import copy as _copy
 import base64 as _base64
-from .models import User
+from .models import User, Base
 
 
 class BaseController():
     db = None
     socketContainer = None
     message = None
+    available_models = None
     body = None
     currentUser = None
+
+    def __init__(self):
+        # Register models
+        self.available_models = {}
+        for M in Base.__subclasses__():
+            self.available_models[M.__name__] = M
 
     def follow(self):
         if self.body['type'] == 'authenticate':
@@ -35,10 +42,10 @@ class BaseController():
             return self.error('No target given')
 
         t = self.body['target'].title().replace('_', '')
-        if t not in globals() or t.startswith('_') or t == 'self':
+        if t not in self.available_models.keys() or t.startswith('_') or t == 'self':
             return self.error('Invalid target given')
 
-        target = globals()[t]
+        target = self.available_models[t]
         method = getattr(self, self.body['type'], None)
 
         if not method or self.body['type'] not in ['save', 'update', 'delete', 'subscribe', 'unsubscribe', 'get']:
@@ -234,6 +241,7 @@ class SocketController(BaseController):
     currentUser = None
 
     def __init__(self, db, socketContainer, message):
+        super().__init__()
         self.db = db
         self.socketContainer = socketContainer
         self.message = message
@@ -257,6 +265,7 @@ class RequestController(BaseController):
     currentUser = None
 
     def __init__(self, db, request):
+        super().__init__()
         self.db = db
         self.request = request
 
