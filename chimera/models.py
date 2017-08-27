@@ -116,4 +116,4 @@ class User(Base, db.Model):
         return False
 
     def get_id(self):
-        return unicode(self.id)
+        return str(self.id)
