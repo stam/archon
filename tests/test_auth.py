@@ -64,10 +64,8 @@ class TestAuth(TestCase):
         ws = MockWebSocket()
         ws.mock_incoming_message(authenticate)
 
-        # app_context = self.app.context
         g = greenlet(self.client.open_connection)
         g.switch(ws, app=self.client.app)
-        # self.client.open_connection(ws)
 
         self.assertEqual(1, requests.post.call_count)
 

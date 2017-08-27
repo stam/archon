@@ -13,7 +13,6 @@ save_company = {
 
 
 class TestSave(LoggedInTestCase):
-
     def setUp(self):
         self.client = Client(app, db)
         super().setUp()
