@@ -1,0 +1,15 @@
+sudo: false
+language: python
+python:
+  - "3.4"
+  - "3.5"
+cache:
+  pip: true
+install:
+  - ./setup.py install
+  - pip install flake8 codecov coverage
+script:
+  - flake8 chimera
+  - coverage run --source="chimera" setup.py test
+after_success:
+  - codecov
