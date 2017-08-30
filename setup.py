@@ -2,10 +2,8 @@
 import os
 from setuptools import find_packages, setup
 
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
+    README = readme.read()
 
 setup(
     name='chimera',
@@ -19,6 +17,7 @@ setup(
     url='https://github.com/JasperStam/chimera',
     classifiers=[],
     install_requires=[
+        'gevent >= 1.1.2',
         'greenlet >= 0.4.12',
         'Flask >= 0.12.0',
         'Flask-Script >= 2.0.5',
