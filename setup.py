@@ -11,6 +11,7 @@ setup(
     packages=find_packages(),
     license='MIT',
     description='A framework for websocket APIs.',
+    long_description=README,
     author='Jasper Stam',
     author_email='jasper@strnk.nl',
     url='https://github.com/JasperStam/chimera',
