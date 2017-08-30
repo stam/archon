@@ -19,7 +19,6 @@ setup(
     url='https://github.com/JasperStam/chimera',
     classifiers=[],
     install_requires=[
-        'gevent >= 1.1.2',
         'greenlet >= 0.4.12',
         'Flask >= 0.12.0',
         'Flask-Script >= 2.0.5',
