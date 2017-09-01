@@ -7,14 +7,14 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 
 setup(
     name='archon',
-    version='0.0.2',
+    version='0.1.0',
     packages=find_packages(),
     license='MIT',
     description='A framework for websocket APIs.',
     long_description=README,
     author='Jasper Stam',
     author_email='jasper@strnk.nl',
-    url='https://github.com/JasperStam/chimera',
+    url='https://github.com/JasperStam/archon',
     keywords='flask sqlalchemy websocket api pubsub',
     classifiers=[
         'Development Status :: 3 - Alpha',
