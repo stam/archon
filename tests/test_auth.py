@@ -2,8 +2,8 @@ import requests
 import json
 import base64
 from .testapp.app import app, db
-from chimera.test import TestCase, Client, MockResponse, MockWebSocket
-from chimera.models import User
+from archon.test import TestCase, Client, MockResponse, MockWebSocket
+from archon.models import User
 from greenlet import greenlet
 
 

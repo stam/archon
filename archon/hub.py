@@ -1,4 +1,4 @@
-from chimera.controller import SocketController, RequestController
+from archon.controller import SocketController, RequestController
 from flask import jsonify
 import json
 import uuid

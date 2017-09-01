@@ -9,7 +9,7 @@ install:
   - ./setup.py install
   - pip install flake8 codecov coverage
 script:
-  - flake8 chimera
-  - coverage run --source="chimera" setup.py test
+  - flake8 archon
+  - coverage run --source="archon" setup.py test
 after_success:
   - codecov

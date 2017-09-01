@@ -14,10 +14,10 @@ def create_app(settings=None):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     sockets = Sockets(app)
 
-    from chimera.models import db
+    from archon.models import db
     db.init_app(app)
 
-    from chimera.hub import Hub
+    from archon.hub import Hub
     app.hub = Hub()
 
     @sockets.route('/ws/')

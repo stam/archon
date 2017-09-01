@@ -1,4 +1,4 @@
-from chimera.models import db, Base
+from archon.models import db, Base
 
 
 class Company(Base, db.Model):

@@ -1,6 +1,6 @@
 import json
 from .testapp.app import app, db
-from chimera.test import LoggedInTestCase, Client, MockWebSocket
+from archon.test import LoggedInTestCase, Client, MockWebSocket
 
 
 save_company = {
