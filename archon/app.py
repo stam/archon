@@ -20,7 +20,7 @@ def create_app(settings=None):
     from archon.hub import Hub
     app.hub = Hub()
 
-    @sockets.route('/ws/')
+    @sockets.route('/api/')
     def open_socket(ws):
         socket = app.hub.add(ws)
         while not socket.ws.closed:

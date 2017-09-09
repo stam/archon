@@ -126,7 +126,7 @@ class Client:
     def __del__(self):
         self._outgoing_requests.stop()
 
-    def open_connection(self, ws, url='/ws/', app=None):
+    def open_connection(self, ws, url='/api/', app=None):
         if app:
             # So for some reason, Flask loses its application context
             # when switching between greenlets?
