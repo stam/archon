@@ -50,3 +50,34 @@ class TestUpdate(LoggedInTestCase):
         self.assertEqual('success', res_update['code'])
         self.assertEqual('CY NL', res_update['data']['name'])
         self.assertEqual(c_id, res_update['data']['id'])
+
+    def test_fails_without_id(self):
+        ws = MockWebSocket()
+        ws.mock_incoming_message(save_company)
+
+        g = greenlet(self.client.open_connection)
+        g.switch(ws, app=self.client.app)
+
+        self.assertEqual(1, len(ws.outgoing_messages))
+        res_save = json.loads(ws.outgoing_messages[0])
+        self.assertEqual(res_save['code'], 'success')
+
+        update_message = {
+            'target': 'company',
+            'type': 'update',
+            'data': {
+                'name': 'CY NL',
+            }
+        }
+
+        ws.mock_incoming_message(update_message)
+        g.switch()
+
+        self.assertEqual(2, len(ws.outgoing_messages))
+        res_update = json.loads(ws.outgoing_messages[1])
+
+        self.assertDictEqual({
+            'type': 'update',
+            'code': 'error',
+            'message': 'No id given',
+        }, res_update)

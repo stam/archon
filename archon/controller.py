@@ -146,6 +146,7 @@ class BaseController():
             'type': self.body['type'],
             'target': self.body['target'],
             'code': 'success',
+            'requestId': self.body.get('requestId', None),
             'data': result,
         }
 
