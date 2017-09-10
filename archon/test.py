@@ -27,6 +27,8 @@ class TestCase(Case):
         if self.client:
             self.client.app.hub = Hub()
 
+        self.client.db.drop_all()
+
 
 class LoggedInTestCase(TestCase):
     def setUp(self):
