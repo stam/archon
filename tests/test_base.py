@@ -16,4 +16,4 @@ class TestPing(TestCase):
 
         self.assertEqual(1, len(ws.outgoing_messages))
         # Whoops our response is a json encoded string
-        self.assertEqual('"pong"', ws.outgoing_messages[0])
+        self.assertEqual('pong', ws.outgoing_messages[0])

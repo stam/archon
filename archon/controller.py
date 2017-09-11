@@ -8,51 +8,49 @@ import jwt as _jwt
 import requests as _requests
 import copy as _copy
 import base64 as _base64
-from .models import User, Base
+from .models import User
 
 
-class BaseController():
+class Controller:
     db = None
-    socketContainer = None
-    message = None
-    available_models = None
+    connection = None
+    body = None
     body = None
     currentUser = None
 
-    def __init__(self):
-        # Register models
-        self.available_models = {}
-        for M in Base.__subclasses__():
-            self.available_models[M.__name__] = M
+    def __init__(self, db, connection, body):
+        self.db = db
+        self.connection = connection
+        self.body = body
 
-    def follow(self):
-        if self.body['type'] == 'authenticate':
-            return self.do_auth()
+    # def follow(self):
+    #     if self.body['type'] == 'authenticate':
+    #         return self.do_auth()
 
-        authorized = self.check_auth()
-        if not authorized:
-            return self.error('unauthorized')
+    #     authorized = self.check_auth()
+    #     if not authorized:
+    #         return self.error('unauthorized')
 
-        if self.body['type'] == 'bootstrap':
-            return self.get_bootstrap()
-        if self.body['type'] == 'unsubscribe':
-            return self.unsubscribe(self.body['requestId'])
+    #     if self.body['type'] == 'bootstrap':
+    #         return self.get_bootstrap()
+    #     if self.body['type'] == 'unsubscribe':
+    #         return self.unsubscribe(self.body['requestId'])
 
-        if 'target' not in self.body:
-            return self.error('No target given')
+    #     if 'target' not in self.body:
+    #         return self.error('No target given')
 
-        t = self.body['target'].title().replace('_', '')
-        if t not in self.available_models.keys() or t.startswith('_') or t == 'self':
-            return self.error('Invalid target given')
+    #     t = self.body['target'].title().replace('_', '')
+    #     if t not in self.available_models.keys() or t.startswith('_') or t == 'self':
+    #         return self.error('Invalid target given')
 
-        target = self.available_models[t]
-        method = getattr(self, self.body['type'], None)
+    #     target = self.available_models[t]
+    #     method = getattr(self, self.body['type'], None)
 
-        if not method or self.body['type'] not in ['save', 'update', 'delete', 'subscribe', 'unsubscribe', 'get']:
-            return self.error('Invalid type given')
+    #     if not method or self.body['type'] not in ['save', 'update', 'delete', 'subscribe', 'unsubscribe', 'get']:
+    #         return self.error('Invalid type given')
 
-        # Call the method with the class as param
-        return method(target)
+    #     # Call the method with the class as param
+    #     return method(target)
 
     def error(self, msg):
         return {
@@ -61,7 +59,7 @@ class BaseController():
             'message': msg if msg else '',
         }
 
-    def get_bootstrap(self):
+    def bootstrap(self):
         output = _copy.copy(self.currentUser.dump())
         return {
             'type': self.body['type'],
@@ -156,7 +154,7 @@ class BaseController():
         result = cls.find(self.db.session, scope)
 
         # Mark the socket as subscribing so we know what is listening to what
-        self.socketContainer.subscribe(self.body['requestId'], self.body['target'], scope)
+        self.connection.subscribe(self.body['requestId'], self.body['target'], scope)
 
         if 'requestId' not in self.body:
             return self.error('No requestId given')
@@ -177,7 +175,7 @@ class BaseController():
         if 'requestId' not in self.body:
             return self.error('No requestId given')
 
-        success = self.socketContainer.unsubscribe(reqId)
+        success = self.connection.unsubscribe(reqId)
         if not success:
             return self.error('Invavlid requestId given')
 
@@ -187,7 +185,7 @@ class BaseController():
             'requestId': self.body['requestId'],
         }
 
-    def do_auth(self):
+    def authenticate(self):
         data = {
             'client_id': _os.environ.get('CY_OAUTH_CLIENT_ID'),
             'client_secret': _os.environ.get('CY_OAUTH_CLIENT_SECRET'),
@@ -235,65 +233,65 @@ class BaseController():
         }
 
 
-class SocketController(BaseController):
-    db = None
-    requestContainer = None
-    body = None
-    currentUser = None
+# class SocketController(BaseController):
+#     db = None
+#     requestContainer = None
+#     body = None
+#     currentUser = None
 
-    def __init__(self, db, socketContainer, message):
-        super().__init__()
-        self.db = db
-        self.socketContainer = socketContainer
-        self.message = message
+#     def __init__(self, db, socketContainer, message):
+#         super().__init__()
+#         self.db = db
+#         self.socketContainer = socketContainer
+#         self.message = message
 
-    def handle(self):
-        if self.message == 'ping':
-            # todo keepalive logic
-            return 'pong'
+#     def handle(self):
+#         if self.message == 'ping':
+#             # todo keepalive logic
+#             return 'pong'
 
-        self.body = self._parse_body()
-        return self.follow()
+#         self.body = self._parse_body()
+#         return self.follow()
 
-    def _parse_body(self):
-        return _json.loads(self.message)
+#     def _parse_body(self):
+#         return _json.loads(self.message)
 
 
-class RequestController(BaseController):
-    db = None
-    request = None
-    body = None
-    currentUser = None
+# class RequestController(BaseController):
+#     db = None
+#     request = None
+#     body = None
+#     currentUser = None
 
-    def __init__(self, db, request):
-        super().__init__()
-        self.db = db
-        self.request = request
+#     def __init__(self, db, request):
+#         super().__init__()
+#         self.db = db
+#         self.request = request
 
-    def handle(self):
-        self.body = self._parse_body()
-        return self.follow()
+#     def handle(self):
+#         self.body = self._parse_body()
+#         return self.follow()
 
-    def _get_type(self, request):
-        if request.method == 'POST':
-            return 'save'
-        if request.method == 'PUT' or request.method == 'PATCH':
-            return 'update'
-        if request.method == 'DELETE':
-            return 'delete'
-        if request.method == 'GET':
-            return 'get'
-        return False
+#     def _get_type(self, request):
+#         if request.method == 'POST':
+#             return 'save'
+#         if request.method == 'PUT' or request.method == 'PATCH':
+#             return 'update'
+#         if request.method == 'DELETE':
+#             return 'delete'
+#         if request.method == 'GET':
+#             return 'get'
+#         return False
 
-    def _parse_body(self):
-        body = {}
-        req = self.request
-        body['authorization'] = req.args.get('authorization')
-        body['target'] = req.endpoint
-        body['type'] = self._get_type(req)
-        if body['type'] == 'save' and not req.data:
-            if not req.files:
-                self.error('save without data or file detected')
-            body['data'] = {'file': req.files['file']}
+#     def _parse_body(self):
+#         body = {}
+#         req = self.request
+#         body['authorization'] = req.args.get('authorization')
+#         body['target'] = req.endpoint
+#         body['type'] = self._get_type(req)
+#         if body['type'] == 'save' and not req.data:
+#             if not req.files:
+#                 self.error('save without data or file detected')
+#             body['data'] = {'file': req.files['file']}
 
-        return body
+#         return body

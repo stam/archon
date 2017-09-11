@@ -50,7 +50,7 @@ class TestAuth(TestCase):
 
         self.assertDictEqual({
             'type': 'subscribe',
-            'message': 'unauthorized',
+            'message': 'Unauthorized',
             'code': 'error',
         }, json.loads(m))
 

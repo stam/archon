@@ -1,7 +1,8 @@
-from archon.controller import SocketController, RequestController
-from flask import jsonify
+# from archon.controller import SocketController, RequestController
+# from flask import jsonify
 import json
 import uuid
+from .exceptions import ArchonError
 
 
 class Subscription():
@@ -70,29 +71,29 @@ class Subscription():
         self.socket.ws.send(res)
 
 
-class RequestContainer():
-    request = None
+# class RequestContainer():
+#     request = None
 
-    def __init__(self, hub, request):
-        self.uuid = uuid.uuid4()
-        self.hub = hub
-        self.request = request
+#     def __init__(self, hub, request):
+#         self.uuid = uuid.uuid4()
+#         self.hub = hub
+#         self.request = request
 
-    def handle(self, db):
-        controller = RequestController(db, self)
-        res = controller.handle()
+#     def handle(self, db):
+#         controller = RequestController(db, self)
+#         res = controller.handle()
 
-        if type(res) is dict and res['code'] == 'success':
-            # Handle publish for successful saves, deletes and updates
-            if res['type'] in ['save', 'update', 'delete']:
-                self.hub.handle_event(res['target'], res['type'], res['data'], res.get('snapshot', None))
+#         if type(res) is dict and res['code'] == 'success':
+#             # Handle publish for successful saves, deletes and updates
+#             if res['type'] in ['save', 'update', 'delete']:
+#                 self.hub.handle_event(res['target'], res['type'], res['data'], res.get('snapshot', None))
 
-        response = jsonify(res)
-        # TODO {error-handling}
-        if res['code'] == 'error':
-            response.status_code = 400
+#         response = jsonify(res)
+#         # TODO {error-handling}
+#         if res['code'] == 'error':
+#             response.status_code = 400
 
-        return response
+#         return response
 
 
 class Connection():
@@ -132,9 +133,23 @@ class Connection():
         for sub in self.subs:
             sub.handle_event(target, _type, item, snapshot)
 
-    def handle(self, db, message):
-        controller = SocketController(db, self, message)
-        res = controller.handle()
+    def handle(self, db, router, message):
+        if message == 'ping':
+            self.ws.send('pong')
+            return
+
+        body = json.loads(message)
+
+        # Let the router route the request
+        # to the correct type/target
+        try:
+            res = router.route(db, self, body)
+        except ArchonError as e:
+            res = {
+                'type': body['type'],
+                'code': 'error',
+                'message': e.message
+            }
 
         if type(res) is dict and res['code'] == 'success':
             # Handle publish for successful saves, deletes and updates
