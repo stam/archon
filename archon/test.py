@@ -7,6 +7,7 @@ from .hub import Hub
 from greenlet import greenlet
 import requests
 import json
+import collections
 
 
 user_henk = {
@@ -99,7 +100,10 @@ class MockWebSocket:
                 if self.auth_token:
                     result['authorization'] = self.auth_token
 
-        return json.dumps(result)
+        if isinstance(result, collections.Mapping):
+            return json.dumps(result)
+
+        return result
 
 
 class MockResponse:

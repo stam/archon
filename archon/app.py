@@ -22,12 +22,12 @@ def create_app(settings=None):
 
     @sockets.route('/api/')
     def open_socket(ws):
-        socket = app.hub.add(ws)
-        while not socket.ws.closed:
-            message = socket.ws.receive()
+        connection = app.hub.add(ws)
+        while not connection.ws.closed:
+            message = connection.ws.receive()
             if message:
                 try:
-                    socket.handle(db, message)
+                    connection.handle(db, message)
                 except Exception as e:
                     logging.error(e, exc_info=True)
 

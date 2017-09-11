@@ -95,7 +95,7 @@ class RequestContainer():
         return response
 
 
-class SocketContainer():
+class Connection():
     # This only exists because
     # I want to do some pubsub scoping logic
     # And it doesnt belong in the controller
@@ -155,7 +155,7 @@ class Hub():
             socket.handle_event(target, _type, item, snapshot)
 
     def add(self, ws):
-        socket = SocketContainer(self, ws)
+        socket = Connection(self, ws)
         self.sockets.append(socket)
         return socket
 
