@@ -23,35 +23,6 @@ class Controller:
         self.connection = connection
         self.body = body
 
-    # def follow(self):
-    #     if self.body['type'] == 'authenticate':
-    #         return self.do_auth()
-
-    #     authorized = self.check_auth()
-    #     if not authorized:
-    #         return self.error('unauthorized')
-
-    #     if self.body['type'] == 'bootstrap':
-    #         return self.get_bootstrap()
-    #     if self.body['type'] == 'unsubscribe':
-    #         return self.unsubscribe(self.body['requestId'])
-
-    #     if 'target' not in self.body:
-    #         return self.error('No target given')
-
-    #     t = self.body['target'].title().replace('_', '')
-    #     if t not in self.available_models.keys() or t.startswith('_') or t == 'self':
-    #         return self.error('Invalid target given')
-
-    #     target = self.available_models[t]
-    #     method = getattr(self, self.body['type'], None)
-
-    #     if not method or self.body['type'] not in ['save', 'update', 'delete', 'subscribe', 'unsubscribe', 'get']:
-    #         return self.error('Invalid type given')
-
-    #     # Call the method with the class as param
-    #     return method(target)
-
     def error(self, msg):
         return {
             'type': self.body['type'],

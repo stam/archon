@@ -105,15 +105,3 @@ class User(Base, db.Model):
         payload = self.dump()
         payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(weeks=8)
         return jwt.encode(payload, secret, algorithm='HS256').decode('utf-8')
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return str(self.id)
