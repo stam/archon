@@ -7,8 +7,12 @@ class Router:
     def __init__(self):
         # Register models
         self.available_models = {}
-        for M in Base.__subclasses__():
+        self.register_subclasses(Base)
+
+    def register_subclasses(self, superclass):
+        for M in superclass.__subclasses__():
             self.available_models[M.__name__] = M
+            self.register_subclasses(M)
 
     def route(self, db, connection, body):
         c = Controller(db, connection, body)
