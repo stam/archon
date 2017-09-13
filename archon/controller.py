@@ -1,13 +1,9 @@
-# Make sure all non-model imports start with an underscore `_`
-# We use globals() to dynamically load models from body['target']
-# And we check that the target doesn't start with an underscore
-# to prevent arbitrary code execution
-import json as _json
-import os as _os
-import jwt as _jwt
-import requests as _requests
-import copy as _copy
-import base64 as _base64
+import json
+import os
+import jwt
+import requests
+import copy
+import base64
 from .models import User
 
 
@@ -31,7 +27,7 @@ class Controller:
         }
 
     def bootstrap(self):
-        output = _copy.copy(self.currentUser.dump())
+        output = copy.copy(self.currentUser.dump())
         return {
             'type': self.body['type'],
             'code': 'success',
@@ -43,9 +39,9 @@ class Controller:
             return False
 
         try:
-            userData = _jwt.decode(self.body['authorization'], _os.environ.get('CY_SECRET_KEY', ''), algorithms=['HS256'])
+            userData = jwt.decode(self.body['authorization'], os.environ.get('CY_SECRET_KEY', ''), algorithms=['HS256'])
             self.currentUser = User.query.get(userData['id'])
-        except _jwt.InvalidTokenError:
+        except jwt.InvalidTokenError:
             return False
 
         return True
@@ -158,14 +154,14 @@ class Controller:
 
     def authenticate(self):
         data = {
-            'client_id': _os.environ.get('CY_OAUTH_CLIENT_ID'),
-            'client_secret': _os.environ.get('CY_OAUTH_CLIENT_SECRET'),
-            'redirect_uri': _os.environ.get('CY_REDIRECT_URI'),
+            'client_id': os.environ.get('CY_OAUTH_CLIENT_ID'),
+            'client_secret': os.environ.get('CY_OAUTH_CLIENT_SECRET'),
+            'redirect_uri': os.environ.get('CY_REDIRECT_URI'),
             'code': self.body['data']['code'],
             'grant_type': 'authorization_code',
         }
 
-        r1 = _requests.post(_os.environ.get('CY_OAUTH_URL'), params=data)
+        r1 = requests.post(os.environ.get('CY_OAUTH_URL'), params=data)
 
         if r1.status_code != 200:
             return self.error(r1.json()['error_description'])
@@ -179,8 +175,8 @@ class Controller:
         # Repad the b64 body
         body_encoded = token[1]
         body_repadded = body_encoded + '=' * (4 - len(body_encoded) % 4)
-        body_decoded = _base64.urlsafe_b64decode(body_repadded).decode()
-        u_data = _json.loads(body_decoded)
+        body_decoded = base64.urlsafe_b64decode(body_repadded).decode()
+        u_data = json.loads(body_decoded)
 
         user = self.db.session.query(User).filter(User.email == u_data['email']).first()
 
@@ -225,7 +221,7 @@ class Controller:
 #         return self.follow()
 
 #     def _parse_body(self):
-#         return _json.loads(self.message)
+#         return json.loads(self.message)
 
 
 # class RequestController(BaseController):
