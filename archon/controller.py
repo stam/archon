@@ -138,8 +138,10 @@ class Controller:
             }
         }
 
-    def unsubscribe(self, reqId):
-        if 'requestId' not in self.body:
+    def unsubscribe(self):
+        reqId = self.body.get('requestId', None)
+
+        if not reqId:
             return self.error('No requestId given')
 
         success = self.connection.unsubscribe(reqId)
