@@ -8,11 +8,20 @@ from .models import User
 
 
 def targetless_route(func):
-    def wrapped_func(*args, **kwargs):
-        return func(*args, **kwargs)
-    wrapped_func.is_targetless = True
-    wrapped_func.is_route = True
-    return wrapped_func
+    func.is_targetless = True
+    func.is_route = True
+    return func
+
+
+def public_route(func):
+    func.is_public = True
+    func.is_route = True
+    return func
+
+
+def model_route(func):
+    func.is_route = True
+    return func
 
 
 class Controller:
@@ -55,6 +64,7 @@ class Controller:
 
         return True
 
+    @model_route
     def save(self, cls):
         data = self.body['data']
 
@@ -79,6 +89,7 @@ class Controller:
             'data': result,
         }
 
+    @model_route
     def update(self, cls):
         data = self.body['data']
 
@@ -102,6 +113,7 @@ class Controller:
             'data': result,
         }
 
+    @model_route
     def delete(self, cls):
         data = self.body.get('data')
         if not data:
@@ -124,6 +136,7 @@ class Controller:
             'data': result,
         }
 
+    @model_route
     def subscribe(self, cls):
         scope = self.body['data'] if 'data' in self.body else {}
 
@@ -164,6 +177,7 @@ class Controller:
             'requestId': self.body['requestId'],
         }
 
+    @public_route
     @targetless_route
     def authenticate(self):
         data = {
