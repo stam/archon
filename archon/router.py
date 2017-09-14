@@ -7,12 +7,22 @@ class Router:
     def __init__(self):
         # Register models
         self.available_models = {}
-        self.register_subclasses(Base)
+        self.register_base_methods(Controller)
+        self.register_model(Base)
 
-    def register_subclasses(self, superclass):
+    def register_model(self, superclass):
         for M in superclass.__subclasses__():
             self.available_models[M.__name__] = M
-            self.register_subclasses(M)
+            self.register_model(M)
+
+    def register_base_methods(self, c):
+        self.base_methods = []
+        for m_name in dir(c):
+            method = getattr(c, m_name)
+
+            if getattr(method, 'is_targetless', False):
+                # from pudb import set_trace; set_trace()
+                self.base_methods.append(m_name)
 
     def route(self, db, connection, body):
         c = Controller(db, connection, body)
@@ -45,7 +55,3 @@ class Router:
     @property
     def public_methods(self):
         return ['authenticate']
-
-    @property
-    def base_methods(self):
-        return ['bootstrap', 'unsubscribe', 'authenticate']

@@ -7,6 +7,14 @@ import base64
 from .models import User
 
 
+def targetless_route(func):
+    def wrapped_func(*args, **kwargs):
+        return func(*args, **kwargs)
+    wrapped_func.is_targetless = True
+    wrapped_func.is_route = True
+    return wrapped_func
+
+
 class Controller:
     db = None
     connection = None
@@ -26,6 +34,7 @@ class Controller:
             'message': msg if msg else '',
         }
 
+    @targetless_route
     def bootstrap(self):
         output = copy.copy(self.currentUser.dump())
         return {
@@ -138,6 +147,7 @@ class Controller:
             }
         }
 
+    @targetless_route
     def unsubscribe(self):
         reqId = self.body.get('requestId', None)
 
@@ -154,6 +164,7 @@ class Controller:
             'requestId': self.body['requestId'],
         }
 
+    @targetless_route
     def authenticate(self):
         data = {
             'client_id': os.environ.get('CY_OAUTH_CLIENT_ID'),
