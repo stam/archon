@@ -38,12 +38,12 @@ class Router:
             if getattr(method, 'is_targetless', False):
                 self.base_routes.append(m_name)
 
-    def route(self, db, connection, body):
+    def route(self, db, connection, body, auth):
         # Handle base route (no target needed)
         if body['type'] in self.base_routes:
-            c = Controller(db, connection, body)
+            c = Controller(db, connection, body, auth)
             method = getattr(c, body['type'])
-            self.check_auth(c, method)
+            self.require_auth(c, method, auth)
             return method()
 
         if 'target' not in body:
@@ -55,20 +55,17 @@ class Router:
 
         target = self.tree[t_name]['Model']
         C = self.tree[t_name]['Controller']
-        c = C(db, connection, body)
+        c = C(db, connection, body, auth)
         method = getattr(c, body['type'], None)
 
         if not method or not getattr(method, 'is_route', False):
             raise InvalidTypeError()
 
-        self.check_auth(c, method)
+        self.require_auth(c, method, auth)
         # Call the method with the class as param
         return method(target)
 
-    def check_auth(self, controller, method):
+    def require_auth(self, controller, method, auth):
         public = getattr(method, 'is_public', False)
-        auth_needed = not public
-        if auth_needed:
-            authorized = controller.check_auth()
-            if not authorized:
-                raise UnauthorizedError()
+        if not public and not auth:
+            raise UnauthorizedError()

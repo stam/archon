@@ -35,7 +35,6 @@ def create_fake_google_id_token():
 
 
 class TestAuth(TestCase):
-
     def setUp(self):
         self.client = Client(app, db)
         super().setUp()
@@ -100,3 +99,64 @@ class TestAuth(TestCase):
         self.assertEqual('bootstrap', m['type'])
         self.assertEqual('success', m['code'])
         self.assertEqual('Henk de Vries', m['data']['username'])
+
+
+class TestRecon(TestCase):
+    '''
+    In the Router we have some sanity checks
+    These sanitychecks may only return useful information
+    if the user is authenticated
+    '''
+    def setUp(self):
+        self.client = Client(app, db)
+        super().setUp()
+
+    def test_no_target(self):
+        ws = MockWebSocket()
+        ws.mock_incoming_message({
+            'type': 'subscribe',
+        })
+        self.client.open_connection(ws)
+
+        self.assertEqual(1, len(ws.outgoing_messages))
+        m = ws.outgoing_messages[0]
+
+        self.assertDictEqual({
+            'type': 'subscribe',
+            'message': 'Unauthorized',
+            'code': 'error',
+        }, json.loads(m))
+
+    def test_invalid_target(self):
+        ws = MockWebSocket()
+        ws.mock_incoming_message({
+            'type': 'subscribe',
+            'target': "Robert';) DROP TABLE Students; --"
+        })
+        self.client.open_connection(ws)
+
+        self.assertEqual(1, len(ws.outgoing_messages))
+        m = ws.outgoing_messages[0]
+
+        self.assertDictEqual({
+            'type': 'subscribe',
+            'message': 'Unauthorized',
+            'code': 'error',
+        }, json.loads(m))
+
+    def test_invalid_type(self):
+        ws = MockWebSocket()
+        ws.mock_incoming_message({
+            'type': 'PUT',
+            'target': 'company',
+        })
+        self.client.open_connection(ws)
+
+        self.assertEqual(1, len(ws.outgoing_messages))
+        m = ws.outgoing_messages[0]
+
+        self.assertDictEqual({
+            'type': 'PUT',
+            'message': 'Unauthorized',
+            'code': 'error',
+        }, json.loads(m))

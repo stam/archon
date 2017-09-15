@@ -2,7 +2,10 @@
 # from flask import jsonify
 import json
 import uuid
-from .exceptions import ArchonError
+import jwt
+import os
+from .exceptions import ArchonError, UnauthorizedError
+from .models import User
 
 
 class Subscription():
@@ -133,22 +136,37 @@ class Connection():
         for sub in self.subs:
             sub.handle_event(target, _type, item, snapshot)
 
+    def check_auth(self, body):
+        currentUser = None
+        if 'authorization' not in body:
+            return False
+
+        try:
+            userData = jwt.decode(body['authorization'], os.environ.get('CY_SECRET_KEY', ''), algorithms=['HS256'])
+            currentUser = User.query.get(userData['id'])
+        except jwt.InvalidTokenError:
+            return False
+
+        return currentUser
+
     def handle(self, db, router, message):
         if message == 'ping':
             self.ws.send('pong')
             return
 
         body = json.loads(message)
+        auth = self.check_auth(body)
 
         # Let the router route the request
         # to the correct type/target
         try:
-            res = router.route(db, self, body)
+            res = router.route(db, self, body, auth)
         except ArchonError as e:
             res = {
                 'type': body['type'],
                 'code': 'error',
-                'message': e.message
+                # Make sure we don't leak info to unauthorized users
+                'message': e.message if auth else UnauthorizedError.message
             }
 
         if type(res) is dict and res['code'] == 'success':

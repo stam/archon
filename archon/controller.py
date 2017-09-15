@@ -1,6 +1,5 @@
 import json
 import os
-import jwt
 import requests
 import copy
 import base64
@@ -31,10 +30,11 @@ class Controller:
     body = None
     currentUser = None
 
-    def __init__(self, db, connection, body):
+    def __init__(self, db, connection, body, currentUser):
         self.db = db
         self.connection = connection
         self.body = body
+        self.currentUser = currentUser
 
     def error(self, msg):
         return {
@@ -51,18 +51,6 @@ class Controller:
             'code': 'success',
             'data': output,
         }
-
-    def check_auth(self):
-        if 'authorization' not in self.body:
-            return False
-
-        try:
-            userData = jwt.decode(self.body['authorization'], os.environ.get('CY_SECRET_KEY', ''), algorithms=['HS256'])
-            self.currentUser = User.query.get(userData['id'])
-        except jwt.InvalidTokenError:
-            return False
-
-        return True
 
     @model_route
     def save(self, cls):
