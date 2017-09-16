@@ -7,7 +7,7 @@ save_company = {
     'target': 'company',
     'type': 'save',
     'data': {
-        'name': 'CY',
+        'name': 'Snackbar',
     },
 }
 
@@ -38,7 +38,7 @@ class TestSave(LoggedInTestCase):
             'code': 'success',
             'data': {
                 'id': 1,
-                'name': 'CY'
+                'name': 'Snackbar'
             }
         }, json.loads(m))
 
@@ -74,7 +74,7 @@ class TestSub(LoggedInTestCase):
             'data': {
                 'add': [{
                     'id': 1,
-                    'name': 'CY',
+                    'name': 'Snackbar',
                 }]
             },
         }, r2)

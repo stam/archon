@@ -41,6 +41,9 @@ class Base:
                 if type(col.type) == DateTime and data[key] is not None:
                     data[key] = parser.parse(data[key])
 
+                if type(col.type) == Date and data[key] is not None:
+                    data[key] = parser.parse(data[key]).date()
+
                 if type(col.type) == Enum and data[key] is not None:
                     data[key] = data[key].value
 

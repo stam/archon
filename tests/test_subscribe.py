@@ -7,7 +7,7 @@ save_company = {
     'target': 'company',
     'type': 'save',
     'data': {
-        'name': 'CY',
+        'name': 'Snackbar',
     },
 }
 
