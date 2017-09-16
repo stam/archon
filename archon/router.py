@@ -17,7 +17,7 @@ class Router:
 
     def register_routes_for_model(self, target, M):
         self.tree[target] = {}
-        c = getattr(M, 'controller', Controller)
+        c = getattr(M, 'Controller', Controller)
         routes = []
         for m_name in dir(c):
             method = getattr(c, m_name)
