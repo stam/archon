@@ -39,7 +39,8 @@ class Base:
 
             if key in data:
                 if type(col.type) == DateTime and data[key] is not None:
-                    data[key] = parser.parse(data[key])
+                    d = parser.parse(data[key])                                   # Convert to python datetime
+                    data[key] = d.astimezone(tz.gettz('UTC')) if d.tzinfo else d  # Convert to UTC
 
                 if type(col.type) == Date and data[key] is not None:
                     data[key] = parser.parse(data[key]).date()
@@ -65,7 +66,7 @@ class Base:
 
             if type(col.type) == DateTime and val is not None:
                 # Make aware and format as iso
-                val = val.replace(tzinfo=tz.tzlocal()).isoformat()
+                val = val.replace(tzinfo=tz.gettz('UTC')).isoformat()
 
             if type(col.type) == Date and val is not None:
                 val = val.isoformat()

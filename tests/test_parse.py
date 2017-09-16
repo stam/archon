@@ -49,7 +49,7 @@ class TestParse(LoggedInTestCase):
                 'id': 1,
                 'name': 'Henk',
                 'company': c['id'],
-                'started_at': '2017-09-16T15:59:36+02:00',
+                'started_at': '2017-09-16T13:59:36+00:00',
                 'birthday': '1993-03-21',
             },
         }, r2)
