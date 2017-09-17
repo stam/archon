@@ -42,7 +42,7 @@ class Base:
                     d = parser.parse(data[key])                                   # Convert to python datetime
                     data[key] = d.astimezone(tz.gettz('UTC')) if d.tzinfo else d  # Convert to UTC
 
-                if type(col.type) == Date and data[key] is not None:
+                if type(col.type) == Date and not isinstance(data[key], datetime.date) and data[key] is not None:
                     data[key] = parser.parse(data[key]).date()
 
                 if type(col.type) == Enum and data[key] is not None:
