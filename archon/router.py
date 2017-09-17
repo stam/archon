@@ -6,9 +6,10 @@ from .exceptions import UnauthorizedError, NoTargetError, InvalidTargetError, In
 
 
 class Router:
-    def __init__(self, app):
+    def __init__(self, app, db):
         # Register models
         self.app = app
+        self.db = db
         self.tree = {}
         self.register_base_routes(Controller)
         self.register_model(Base)
@@ -38,7 +39,7 @@ class Router:
 
     def add_http_route(self, url, Controller, route, Model):
         def wrapped_route():
-            c = Controller(None, None, None, None)
+            c = Controller(self.db, None, None, None)
             c.request = request
             method = getattr(c, route.__name__)
             return method(Model, request)
@@ -60,10 +61,10 @@ class Router:
             if getattr(method, 'is_targetless', False):
                 self.base_routes.append(m_name)
 
-    def route(self, db, connection, body, auth):
+    def route(self, connection, body, auth):
         # Handle base route (no target needed)
         if body['type'] in self.base_routes:
-            c = Controller(db, connection, body, auth)
+            c = Controller(self.db, connection, body, auth)
             method = getattr(c, body['type'])
             self.require_auth(c, method, auth)
             return method()
@@ -77,7 +78,7 @@ class Router:
 
         target = self.tree[t_name]['Model']
         C = self.tree[t_name]['Controller']
-        c = C(db, connection, body, auth)
+        c = C(self.db, connection, body, auth)
         method = getattr(c, body['type'], None)
 
         if not method or not getattr(method, 'is_route', False):

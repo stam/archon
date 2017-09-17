@@ -149,7 +149,7 @@ class Connection():
 
         return currentUser
 
-    def handle(self, db, router, message):
+    def handle(self, router, message):
         if message == 'ping':
             self.ws.send('pong')
             return
@@ -160,13 +160,21 @@ class Connection():
         # Let the router route the request
         # to the correct type/target
         try:
-            res = router.route(db, self, body, auth)
-        except ArchonError as e:
+            res = router.route(self, body, auth)
+        except Exception as e:
+            msg = UnauthorizedError.message
+
+            if auth:
+                if isinstance(e, ArchonError):
+                    msg = e.message
+                else:
+                    msg = str(e)
+
             res = {
                 'type': body['type'],
                 'code': 'error',
                 # Make sure we don't leak info to unauthorized users
-                'message': e.message if auth else UnauthorizedError.message
+                'message': msg
             }
 
         if type(res) is dict and res['code'] == 'success':

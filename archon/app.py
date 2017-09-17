@@ -1,5 +1,4 @@
 from flask import Flask
-import logging
 from flask_sockets import Sockets
 
 
@@ -20,7 +19,7 @@ def create_app(settings=None):
     from archon.hub import Hub
     from archon.router import Router
     app.hub = Hub()
-    app.router = Router(app)
+    app.router = Router(app, db)
 
     @sockets.route('/api/')
     def open_socket(ws):
@@ -28,9 +27,6 @@ def create_app(settings=None):
         while not connection.ws.closed:
             message = connection.ws.receive()
             if message:
-                try:
-                    connection.handle(db, app.router, message)
-                except Exception as e:
-                    logging.error(e, exc_info=True)
+                connection.handle(app.router, message)
 
     return app, db

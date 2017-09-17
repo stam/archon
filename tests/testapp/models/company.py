@@ -11,6 +11,23 @@ class CompanyController(Controller):
             'code': 'error',
         }
 
+    @model_route
+    def list_employees(self, cls):
+        data = self.body['data']
+        company = cls.query.get(data['id'])
+        return {
+            'code': 'success',
+            'type': self.body['type'],
+            'data': [e.name for e in company.employees],
+        }
+
+    @model_route
+    def list_employees_error(self, cls):
+        # A controller has no type, so this should error
+        return {
+            'type': self.type
+        }
+
     @http_route(methods=['GET'])
     def foo(self, cls, request):
         return jsonify({'foo': 'bar'})
