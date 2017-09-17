@@ -1,6 +1,5 @@
 from archon.models import db, Base
 from archon.controller import Controller, model_route, http_route
-from flask import jsonify
 
 
 class CompanyController(Controller):
@@ -24,13 +23,16 @@ class CompanyController(Controller):
     @model_route
     def list_employees_error(self, cls):
         # A controller has no type, so this should error
-        return {
-            'type': self.type
-        }
+        return {'type': self.type}
 
     @http_route(methods=['GET'])
     def foo(self, cls, request):
-        return jsonify({'foo': 'bar'})
+        return {'foo': 'bar'}
+
+    @http_route(methods=['GET'])
+    def foo_error(self, cls, request):
+        # A controller has no type, so this should error
+        return {'type': self.type}
 
 
 class Company(Base, db.Model):

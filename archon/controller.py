@@ -14,7 +14,6 @@ def targetless_route(func):
 
 def public_route(func):
     func.is_public = True
-    func.is_route = True
     return func
 
 
@@ -37,9 +36,10 @@ class Controller:
     body = None
     currentUser = None
 
-    def __init__(self, db, connection, body, currentUser):
+    def __init__(self, db, body, currentUser, connection=None, request=None):
         self.db = db
         self.connection = connection
+        self.request = request
         self.body = body
         self.currentUser = currentUser
 

@@ -94,4 +94,3 @@ class TestNotAuth(TestCase):
             'message': 'Unauthorized',
             'type': 'ask_for_raise',
         }, json.loads(m))
-
