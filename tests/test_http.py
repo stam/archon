@@ -9,7 +9,7 @@ class TestHttp(TestCase):
         super().setUp()
 
     def test_custom_http_route(self):
-        res = self.client.http_client.get('/api/foo/')
+        res = self.client.http_client.get('/api/company/foo/')
         self.assertEqual(json.loads(res.data.decode()), {
                 'foo': 'bar'
             })

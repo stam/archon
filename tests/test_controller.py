@@ -24,3 +24,6 @@ class TestCustom(LoggedInTestCase):
             'answer': 'no',
             'code': 'error',
         }, json.loads(m))
+
+        # todo test not public
+        # test db connection

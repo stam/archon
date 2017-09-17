@@ -1,5 +1,6 @@
 from archon.models import db, Base
-from archon.controller import Controller, model_route
+from archon.controller import Controller, model_route, http_route
+from flask import jsonify
 
 
 class CompanyController(Controller):
@@ -9,6 +10,10 @@ class CompanyController(Controller):
             'answer': 'no',
             'code': 'error',
         }
+
+    @http_route(methods=['GET'])
+    def foo(self, cls, request):
+        return jsonify({'foo': 'bar'})
 
 
 class Company(Base, db.Model):

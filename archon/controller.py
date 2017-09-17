@@ -23,10 +23,17 @@ def model_route(func):
     return func
 
 
+def http_route(**options):
+    def decorator(func):
+        func.is_http_route = True
+        func.options = options
+        return func
+    return decorator
+
+
 class Controller:
     db = None
     connection = None
-    body = None
     body = None
     currentUser = None
 
