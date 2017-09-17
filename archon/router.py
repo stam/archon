@@ -2,7 +2,7 @@ import re
 from flask import request, jsonify
 from .models import Base
 from .controller import Controller
-from .exceptions import ArchonError, UnauthorizedError, NoTargetError, InvalidTargetError, InvalidTypeError
+from .exceptions import UnauthorizedError, NoTargetError, InvalidTargetError, InvalidTypeError
 import jwt
 import os
 from .models import User
