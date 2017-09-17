@@ -11,7 +11,7 @@ class TestUnAuth(TestCase):
     def test_unauthorized(self):
         res = self.client.http_client.get('/api/company/foo/')
         self.assertEqual(403, res.status_code)
-        self.assertEqual(json.loads(res.data), {
+        self.assertEqual(json.loads(res.data.decode()), {
             'message': 'Unauthorized'})
 
 
