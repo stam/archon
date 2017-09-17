@@ -126,7 +126,7 @@ class Client:
         self.app = app
         self.db = db
         self.app.testing = True
-        self.flask_test_client = self.app.test_client()
+        self.http_client = self.app.test_client()
         self._mock_outgoing_requests()
 
     def __del__(self):
