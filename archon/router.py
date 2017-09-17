@@ -74,7 +74,7 @@ class Router:
             method = getattr(c, route.__name__)
 
             self.require_auth(c, method, auth)
-            res = method(M, request)
+            res = method(M)
         except Exception as e:
             if isinstance(e, UnauthorizedError) or not auth:
                 response = jsonify({'message': UnauthorizedError.message})

@@ -26,11 +26,11 @@ class CompanyController(Controller):
         return {'type': self.type}
 
     @http_route(methods=['GET'])
-    def foo(self, cls, request):
+    def foo(self, cls):
         return {'foo': 'bar'}
 
     @http_route(methods=['GET'])
-    def foo_error(self, cls, request):
+    def foo_error(self, cls):
         # A controller has no type, so this should error
         return {'type': self.type}
 
