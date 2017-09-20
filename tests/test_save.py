@@ -38,7 +38,8 @@ class TestSave(LoggedInTestCase):
             'code': 'success',
             'data': {
                 'id': 1,
-                'name': 'Snackbar'
+                'name': 'Snackbar',
+                'type': 'notIT',
             }
         }, json.loads(m))
 
@@ -75,6 +76,7 @@ class TestSub(LoggedInTestCase):
                 'add': [{
                     'id': 1,
                     'name': 'Snackbar',
+                    'type': 'notIT',
                 }]
             },
         }, r2)

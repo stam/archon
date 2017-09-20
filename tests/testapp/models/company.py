@@ -1,5 +1,11 @@
 from archon.models import db, Base
 from archon.controller import Controller, model_route, http_route
+import enum
+
+
+class CompanyType(enum.Enum):
+    IT = 'IT'
+    notIT = 'notIT'
 
 
 class CompanyController(Controller):
@@ -40,3 +46,4 @@ class Company(Base, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
+    type = db.Column(db.Enum(CompanyType), default='notIT')

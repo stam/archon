@@ -46,6 +46,7 @@ class TestSubscribe(LoggedInTestCase):
                 'add': [{
                     'id': c.id,
                     'name': c.name,
+                    'type': 'notIT',
                 }],
                 'update': [],
                 'delete': [],

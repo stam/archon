@@ -8,7 +8,9 @@ save_company = {
     'target': 'company',
     'type': 'save',
     'data': {
-        'name': 'Snackbar',
+        'name': 'Developers',
+        'type': 'IT',
+
     },
 }
 
@@ -18,7 +20,7 @@ class TestParse(LoggedInTestCase):
         self.client = Client(app, db)
         super().setUp()
 
-    def test_save_model(self):
+    def test_fk_date_datetime(self):
         ws = MockWebSocket()
         ws.mock_incoming_message(save_company)
         g = greenlet(self.client.open_connection)
@@ -59,3 +61,22 @@ class TestParse(LoggedInTestCase):
 
         self.assertEqual(e.company, c)
         self.assertEqual(c.employees.first(), e)
+
+    def test_enum(self):
+        ws = MockWebSocket()
+        ws.mock_incoming_message(save_company)
+        self.client.open_connection(ws)
+
+        self.assertEqual(1, len(ws.outgoing_messages))
+        res = ws.outgoing_messages[0]
+
+        self.assertDictEqual({
+            'type': 'save',
+            'target': 'company',
+            'code': 'success',
+            'data': {
+                'id': 1,
+                'name': 'Developers',
+                'type': 'IT',
+            }
+        }, json.loads(res))

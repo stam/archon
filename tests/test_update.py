@@ -131,6 +131,7 @@ class TestSub(LoggedInTestCase):
                 'add': [{
                     'id': c.id,
                     'name': c.name,
+                    'type': 'notIT',
                 }]
             },
         }, r2)
@@ -178,6 +179,7 @@ class TestSub(LoggedInTestCase):
                 'remove': [{
                     'id': c.id,
                     'name': c.name,
+                    'type': 'notIT',
                 }]
             },
         }, r2)
@@ -225,6 +227,7 @@ class TestSub(LoggedInTestCase):
                 'update': [{
                     'id': c.id,
                     'name': c.name,
+                    'type': 'notIT',
                 }]
             },
         }, r2)

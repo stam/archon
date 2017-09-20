@@ -45,9 +45,6 @@ class Base:
                 if type(col.type) == Date and not isinstance(data[key], datetime.date) and data[key] is not None:
                     data[key] = parser.parse(data[key]).date()
 
-                if type(col.type) == Enum and data[key] is not None:
-                    data[key] = data[key].value
-
                 setattr(self, key, data[key])
 
     def __repr__(self):
@@ -70,6 +67,9 @@ class Base:
 
             if type(col.type) == Date and val is not None:
                 val = val.isoformat()
+
+            if type(col.type) == Enum and val is not None:
+                val = val.value
 
             data[key] = val
         return data

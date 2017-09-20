@@ -46,6 +46,7 @@ class TestDelete(LoggedInTestCase):
             'data': {
                 'id': c.id,
                 'name': c.name,
+                'type': 'notIT',
             },
             'code': 'success',
         }, json.loads(m))
@@ -98,6 +99,7 @@ class TestSub(LoggedInTestCase):
                 'remove': [{
                     'id': c.id,
                     'name': c.name,
+                    'type': 'notIT',
                 }]
             },
         }, r2)

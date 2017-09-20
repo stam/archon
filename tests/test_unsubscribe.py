@@ -56,7 +56,8 @@ class TestUnsubscribe(LoggedInTestCase):
             'requestId': '1234',
             'data': {'add': [{
                 'id': 1,
-                'name': 'Garage'}]}
+                'name': 'Garage',
+                'type': 'notIT'}]}
             }, json.loads(ws1.outgoing_messages[1]))
 
         ws1.mock_incoming_message(unsubscribe_company)
