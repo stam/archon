@@ -25,7 +25,7 @@ update_company = {
 subscribe_company = {
     'requestId': '1234',
     'target': 'company',
-    'data': {
+    'scope': {
         'name': 'Hairdresser',
     },
     'type': 'subscribe',
@@ -148,7 +148,7 @@ class TestSub(LoggedInTestCase):
         subscribe_company = {
             'requestId': '9012',
             'target': 'company',
-            'data': {
+            'scope': {
                 'name': 'Butcher',
             },
             'type': 'subscribe',

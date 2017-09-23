@@ -133,7 +133,7 @@ class Controller:
 
     @model_route
     def subscribe(self, cls):
-        scope = self.body['data'] if 'data' in self.body else {}
+        scope = self.body['scope'] if 'scope' in self.body else {}
 
         result = cls.find(self.db.session, scope)
 
