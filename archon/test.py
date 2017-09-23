@@ -10,13 +10,6 @@ import json
 import collections
 
 
-user_henk = {
-    'name': 'Henk de Vries',
-    'email': 'henk@devries.nl',
-    'picture': 'bla',
-}
-
-
 class TestCase(Case):
     def setUp(self):
         self.client.app.app_context().push()
@@ -36,7 +29,12 @@ class LoggedInTestCase(TestCase):
         super().setUp()
 
         # create and save a user
-        u = User(user_henk)
+        u = User()
+        u.parse({
+            'name': 'Henk de Vries',
+            'email': 'henk@devries.nl',
+            'picture': 'bla',
+        })
         self.client.db.session.add(u)
         self.client.db.session.commit()
 

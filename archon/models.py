@@ -20,8 +20,9 @@ class Collection():
 
 
 class Base:
-    def __init__(self, data={}, currentUser=None):
-        self.parse(data, currentUser, 'save')
+    def __init__(self, *args, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
 
     def parse(self, data, currentUser=None, reqType=None):
         for col in self.__table__.columns:

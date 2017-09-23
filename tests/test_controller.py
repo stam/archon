@@ -27,10 +27,10 @@ class TestCustom(LoggedInTestCase):
         }, json.loads(m))
 
     def test_db_connection(self):
-        c = Company({'name': 'Post office'})
+        c = Company(name='Post office')
         db.session.add(c)
-        e1 = Employee({'name': 'Henk'})
-        e2 = Employee({'name': 'Peter'})
+        e1 = Employee(name='Henk')
+        e2 = Employee(name='Peter')
         e1.company = c
         e2.company = c
         db.session.add(e1, e2)

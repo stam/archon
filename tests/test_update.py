@@ -100,9 +100,7 @@ class TestSub(LoggedInTestCase):
     def test_update_into_scope(self):
         ws = MockWebSocket()
 
-        c = Company({
-                'name': 'Butcher',
-            })
+        c = Company(name='Butcher')
         db.session.add(c)
         db.session.commit()
 
@@ -139,9 +137,7 @@ class TestSub(LoggedInTestCase):
     def test_update_out_of_scope(self):
         ws = MockWebSocket()
 
-        c = Company({
-                'name': 'Butcher',
-            })
+        c = Company(name='Butcher')
         db.session.add(c)
         db.session.commit()
 
@@ -187,9 +183,7 @@ class TestSub(LoggedInTestCase):
     def test_update_already_in_scope(self):
         ws = MockWebSocket()
 
-        c = Company({
-                'name': 'Butcher',
-            })
+        c = Company(name='Butcher')
         db.session.add(c)
         db.session.commit()
 

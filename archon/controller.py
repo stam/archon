@@ -69,7 +69,8 @@ class Controller:
             return self.error('ID given when saving, try using type=update')
 
         try:
-            m = cls(data, self.currentUser)
+            m = cls()
+            m.parse(data, self.currentUser)
         except Exception as e:
             return self.error(str(e))
 
@@ -209,7 +210,8 @@ class Controller:
                 'avatar_url': u_data['picture'],
                 'display_name': u_data['name'],
             }
-            user = User(u)
+            user = User()
+            user.parse(u)
             self.db.session.add(user)
             self.db.session.commit()
 
