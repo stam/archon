@@ -7,7 +7,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 
 setup(
     name='archon',
-    version='0.3.2',
+    version='0.3.3',
     packages=find_packages(),
     license='MIT',
     description='A framework for websocket APIs.',
