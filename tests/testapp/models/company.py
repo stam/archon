@@ -41,7 +41,7 @@ class CompanyController(Controller):
         return {'type': self.type}
 
 
-class Company(Base, db.Model):
+class Company(Base):
     Controller = CompanyController
 
     id = db.Column(db.Integer, primary_key=True)

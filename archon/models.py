@@ -1,7 +1,6 @@
 from dateutil import parser, tz
 from sqlalchemy.types import DateTime, Date, Enum
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import orm
+from flask_sqlalchemy import SQLAlchemy, _BoundDeclarativeMeta
 import datetime
 import jwt
 import os
@@ -28,27 +27,20 @@ class PrimaryKey(db.Integer):
     pass
 
 
-class Base:
-    def __init__(self, *args, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-
-        self.__construct_meta()
-
-    # TODO: fix this with a metaclass?
-    # SQLAlchemy does not call __init__
-    @orm.reconstructor
-    def init_on_load(self):
-        self.__construct_meta()
-
-    def __repr__(self):
-        return '<Model %r>' % self.id
+class ArchonMeta(_BoundDeclarativeMeta):
+    def __init__(self, name, bases, d):
+        _BoundDeclarativeMeta.__init__(self, name, bases, d)
+        self.__construct_core()
 
     # SQLAlchemy columns are a pain to traverse, you can't tell if
-    # a employee.customer is a foreign key, without checking
-    # len(employee.__table__.columns.company_id.foreign_keys)
-    # so we do some indexing here
-    def __construct_meta(self):
+    # employee.customer is a foreign key without checking
+    # len(employee.__table__.columns.company_id.foreign_keys).
+    # So we do some indexing here
+    def __construct_core(self):
+        table = getattr(self, '__table__', None)
+        if table is None:
+            return
+
         cols = {}
         for col in self.__table__.columns:
             if col.primary_key is True:
@@ -60,14 +52,22 @@ class Base:
                 continue
             cols[col.name] = col.type
 
-        self.__meta__ = cols
+        self.__core__ = cols
+
+
+class Base(db.Model, metaclass=ArchonMeta):
+    __abstract__ = True
+
+    def __init__(self, *args, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def __repr__(self):
+        return '<Model %r>' % self.id
 
     def parse(self, data, currentUser=None, reqType=None):
         for key, val in data.items():
-            if key not in self.__meta__:
-                continue
-
-            col = self.__meta__[key]
+            col = self.__core__[key]
 
             if isinstance(col, ForeignKey):
                 setattr(self, key + '_id', data[key])
@@ -82,49 +82,40 @@ class Base:
 
             setattr(self, key, val)
 
-    # TODO use __meta__
     def dump(self):
         data = {}
-        for col in self.__table__.columns:
-            key = col.name
-            val = getattr(self, key)
+        for col_name, col in self.__core__.items():
+            val = getattr(self, col_name)
 
-            # Return {'project': id} instead of {'project_id': id}
-            if len(col.foreign_keys):
-                assert key.endswith('_id')
-                key = '_'.join(key.split('_')[:-1])
+            if isinstance(col, ForeignKey) and val is not None:
+                val = getattr(self, col_name + '_id')
 
-            if type(col.type) == DateTime and val is not None:
+            if isinstance(col, DateTime) and val is not None:
                 # Make aware and format as iso
                 val = val.replace(tzinfo=tz.gettz('UTC')).isoformat()
 
-            if type(col.type) == Date and val is not None:
+            if isinstance(col, Date) and val is not None:
                 val = val.isoformat()
 
-            if type(col.type) == Enum and val is not None:
+            if isinstance(col, Enum) and val is not None:
                 val = val.value
 
-            data[key] = val
+            data[col_name] = val
         return data
 
-    # TODO use __meta__
     @classmethod
     def find(cls, session, scope):
         query = session.query(cls)
 
-        for col in cls.__table__.columns:
-            dbKey = col.name
-            scopeKey = dbKey
+        for key, val in scope.items():
+            col = cls.__core__[key]
 
-            # Translate 'project_id' to 'project', a relation key shorthand
-            if len(col.foreign_keys):
-                assert dbKey.endswith('_id')
-                scopeKey = '_'.join(dbKey.split('_')[:-1])
+            # We want to filter by `company_id` if `company`
+            # is given in the scope
+            if isinstance(col, ForeignKey):
+                key = key + '_id'
 
-            if dbKey in scope or scopeKey in scope:
-                val = scope[scopeKey]
-                query = query.filter_by(**{dbKey: val})
-                continue
+            query = query.filter_by(**{key: val})
 
         return Collection(query.all())
 

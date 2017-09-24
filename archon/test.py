@@ -31,9 +31,8 @@ class LoggedInTestCase(TestCase):
         # create and save a user
         u = User()
         u.parse({
-            'name': 'Henk de Vries',
+            'display_name': 'Henk de Vries',
             'email': 'henk@devries.nl',
-            'picture': 'bla',
         })
         self.client.db.session.add(u)
         self.client.db.session.commit()

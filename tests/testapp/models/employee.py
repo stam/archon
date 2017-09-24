@@ -1,7 +1,7 @@
 from archon.models import db, Base
 
 
-class Employee(Base, db.Model):
+class Employee(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
 
